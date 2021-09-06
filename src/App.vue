@@ -12,12 +12,12 @@
 
 <script>
 
-  import Login  from '@/components/MiPerfil.vue'
+  //import Login  from '@/components/MiPerfil.vue'
 export default {
   name: 'App',
-  components: {
+  /*components: {
     Login
-  }
+  }*/
 }
 </script>
 

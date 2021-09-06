@@ -11,9 +11,9 @@
 
       <b-form @submit.prevent="onSubmit">
         <b-form-input
-          class="my-3"
-          v-model="username"
-          placeholder="Usuario"
+          v-model="email"
+          id="email-input"
+          placeholder="Ej. juan25@provider.com"
           required
         ></b-form-input>
         
@@ -34,24 +34,34 @@
         </b-button>
       </b-form>
 
-      <p class="my-4">¿No tienes una cuenta? <router-link to='/registration'>Registrarse</router-link></p>
+      <p class="my-4">¿No tienes una cuenta? <router-link to='/register'>Registrarse</router-link></p>
 
     </div>
   </b-container>
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+
 export default {
   name: 'Login',
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
     }
   },
   methods: {
-    onSubmit() {
+    async onSubmit() {
       alert(`Usuario: ${this.username}, Contraseña: ${this.password}`)
+      try{
+        const val = await firebase.auth().signInWithEmailAndPassword(this.email, this.password);
+        console.log(val);
+        this.$router.replace({name: "home"});
+      }catch(err){
+        console.log(err);
+      }
     }
   }
 }
@@ -61,3 +71,4 @@ export default {
 <style scoped>
 
 </style>
+

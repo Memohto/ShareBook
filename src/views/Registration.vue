@@ -87,6 +87,12 @@
 </template>
 
 <script>
+
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+
+
 export default {
   name: 'Login',
   data() {
@@ -133,11 +139,29 @@ export default {
 
       return valid;
     },
-    onSubmit() {
+    async onSubmit() {
       const valid = this.validate();
+      var db = firebase.firestore();
       if(valid) {
-        alert(`Usuario: ${this.username} creado`);
-        this.$router.push('/login');
+        try{
+          const user  = firebase.auth().createUserWithEmailAndPassword(this.email, this.password);
+          console.log(user);
+        }catch(err){
+          console.log(err);
+        }
+        db.collection("users").doc(this.email).set({
+          userName: this.username,
+          phone: this.phone,
+          fullName: this.fullName,
+      })
+      .then(() => {
+          console.log("Document successfully written!");
+      })
+      .catch((error) => {
+          console.error("Error writing document: ", error);
+      });
+        this.$router.replace({name: "home"});
+          alert(`Usuario: ${this.username} creado`);
       } else {
         this.dismissCountDown = this.dismissSecs;
       }

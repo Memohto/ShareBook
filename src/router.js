@@ -3,19 +3,25 @@ import Router from 'vue-router';
 
 import Login from '@/views/Login.vue';
 import Registration from '@/views/Registration.vue';
+import Home from '@/views/Home.vue';
 
 Vue.use(Router);
 
 const routes = [
   {
     path: '/login',
-    name: 'Login',
+    name: 'login',
     component: Login
   },
   {
-    path: '/registration',
-    name: 'Registro',
+    path: '/register',
+    name: 'register',
     component: Registration
+  },
+    {
+    path: '/home',
+    name: 'home',
+    component: Home
   }
 ]
 
