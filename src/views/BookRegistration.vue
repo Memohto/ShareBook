@@ -12,8 +12,9 @@
           </li>
         </ul>
       </b-alert>
-      <div class="my-3" style="width:50%">
-        <b-form @submit.prevent="onSubmit">
+      <b-col md="6" class="my-3">
+        <p>Aquí va el registro de libros</p>
+        <!-- <b-form @submit.prevent="onSubmit">
 
           <b-form-group label-cols="4" label="Nombre y apellido" label-for="name-input">
             <b-form-input
@@ -81,8 +82,8 @@
           <b-button style="margin-right:5px" @click="$router.push('./login')">Cancelar</b-button>
           <b-button class="my-5" variant="success" type="submit">Registrarse</b-button>
           
-        </b-form>
-      </div>
+        </b-form> -->
+      </b-col>
     </b-container>
 </template>
 
@@ -144,16 +145,16 @@ export default {
       var db = firebase.firestore();
       if(valid) {
         try{
-          const user  = firebase.auth().createUserWithEmailAndPassword(this.email, this.password);
+          const user  = await firebase.auth().createUserWithEmailAndPassword(this.email, this.password);
           console.log(user);
         }catch(err){
           console.log(err);
         }
-        db.collection("users").doc(this.email).set({
+        await db.collection("users").doc(this.email).set({
           userName: this.username,
           phone: this.phone,
           fullName: this.fullName,
-      })
+        })
       .then(() => {
           console.log("Document successfully written!");
       })

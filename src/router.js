@@ -1,27 +1,41 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import firebase from 'firebase/app';
+import 'firebase/auth'
 
+import Catalog from '@/views/Catalog.vue';
 import Login from '@/views/Login.vue';
-import Registration from '@/views/Registration.vue';
-import Home from '@/views/Home.vue';
+import UserRegistration from '@/views/UserRegistration.vue';
+import Profile from '@/views/Profile.vue';
+import BookRegistration from '@/views/BookRegistration.vue'
 
 Vue.use(Router);
 
 const routes = [
   {
+    path: '/',
+    name: 'Catalog',
+    component: Catalog
+  },
+  {
     path: '/login',
-    name: 'login',
+    name: 'Login',
     component: Login
   },
   {
-    path: '/register',
-    name: 'register',
-    component: Registration
+    path: '/registro',
+    name: 'UserRegistration',
+    component: UserRegistration
   },
-    {
-    path: '/home',
-    name: 'home',
-    component: Home
+  {
+    path: '/perfil',
+    name: 'Profile',
+    component: Profile
+  },
+  {
+    path: '/registroLibro',
+    name: 'BookRegistration',
+    component: BookRegistration
   }
 ]
 
@@ -30,5 +44,10 @@ const router = new Router({
   base: process.env.BASE_URL,
   routes
 });
+
+router.beforeEach((to, from, next) => {
+  if(to.name !== 'Login' && to.name !== 'UserRegistration' && !firebase.auth().currentUser) next('/login')
+  next();
+})
 
 export default router;

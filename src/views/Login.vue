@@ -1,6 +1,19 @@
 <template>
   <b-container>
-    <div class="mx-auto text-center" style="width:25%; margin-top:8%">
+    <b-alert
+      :show="dismissCountDown"
+      variant="danger"
+      @dismissed="dismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      <ul>
+        <li v-for="(e, i) in Object.keys(errors)" :key="i">
+          {{e + ": " + errors[e]}}
+        </li>
+      </ul>
+    </b-alert>
+
+    <b-col md="4" lg="3" class="mx-auto text-center" style="margin-top:8%">
 
       <img 
         class="my-3"
@@ -34,9 +47,9 @@
         </b-button>
       </b-form>
 
-      <p class="my-4">¿No tienes una cuenta? <router-link to='/register'>Registrarse</router-link></p>
+      <p class="my-4">¿No tienes una cuenta? <router-link to='/registro'>Registrarse</router-link></p>
 
-    </div>
+    </b-col>
   </b-container>
 </template>
 
@@ -50,25 +63,27 @@ export default {
     return {
       email: '',
       password: '',
+      errors: {},
+      dismissSecs: 10,
+      dismissCountDown: 0
     }
   },
   methods: {
-    async onSubmit() {
-      alert(`Usuario: ${this.username}, Contraseña: ${this.password}`)
-      try{
-        const val = await firebase.auth().signInWithEmailAndPassword(this.email, this.password);
-        console.log(val);
-        this.$router.replace({name: "home"});
-      }catch(err){
-        console.log(err);
-      }
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown
+    },
+    onSubmit() {
+      firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+        .then(() => {
+          this.$router.push('/');
+        })
+        .catch(err => {
+          console.error(err);
+          this.errors['Error'] = err.message;
+          this.dismissCountDown = this.dismissSecs;
+        })
     }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-
-</style>
 
