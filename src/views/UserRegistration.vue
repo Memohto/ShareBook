@@ -93,7 +93,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 export default {
-  name: 'Login',
+  name: 'UserRegistration',
   data() {
     return {
       fullName: '',
@@ -146,7 +146,7 @@ export default {
         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
           .then(() => {
               // Create user document
-            firebase.firestore().collection('users').doc(this.email).set({
+            firebase.firestore().collection('users').doc(this.email.toLowerCase()).set({
               credits: 100,
               fullName: this.fullName,
               phone: this.phone,

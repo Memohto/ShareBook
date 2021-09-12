@@ -1,16 +1,17 @@
 <template>
   <div>
     <b-row>
-      <b-col md="6" class="p-2" v-for="(b, i) in userBooks" :key="i">
+      <b-col md="6" class="p-2" v-for="(b, i) in books" :key="i">
         <Book 
           :image="b.photo" 
           :title="b.title" 
           :author="b.author" 
+          :owner="b.owner"
           :credits="b.credits"
           :condition="b.condition"
           :genre="b.genre"
           :uploaded="b.uploadedAt"
-          :isMine="true"
+          :isMine="false"
         />  
       </b-col>
     </b-row>
@@ -19,35 +20,33 @@
 
 <script>
 import firebase from "firebase/app";
-import "firebase/auth";
 import "firebase/firestore";
+import "firebase/auth";
 
-import Book from '@/components/Book.vue';
+import Book from "@/components/Book.vue";
 
 export default {
-  name: 'MyBooks',
+  name: 'BookCarousel',
   components: {
     Book
   },
   data() {
     return {
-      userBooks: []
+      books: []
     }
   },
-  computed: {
-    userEmail() {
-      return firebase.auth().currentUser.email;
-    }
+  props: {
+    genre: String,
   },
   async mounted() {
-    try {
-      const bookInfo = await firebase.firestore().collection('books').where('owner', '==', this.userEmail).get()
-      this.userBooks = bookInfo.docs.map(d => d.data());
-    } catch(err) {
-      console.error(err);
-    }
+    const userEmail = firebase.auth().currentUser.email;
+    const bookInfo = await firebase.firestore().collection('books')
+      .where('genre', '==', this.genre)
+      .where('owner', '!=', userEmail)
+      .limit(2).get();
+    this.books = bookInfo.docs.map(d => d.data());
   }
-} 
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
