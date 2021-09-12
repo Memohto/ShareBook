@@ -8,6 +8,7 @@ import Login from '@/views/Login.vue';
 import UserRegistration from '@/views/UserRegistration.vue';
 import Profile from '@/views/Profile.vue';
 import BookRegistration from '@/views/BookRegistration.vue'
+import Requests from '@/views/Requests.vue';
 
 Vue.use(Router);
 
@@ -36,6 +37,11 @@ const routes = [
     path: '/registroLibro',
     name: 'BookRegistration',
     component: BookRegistration
+  },
+  {
+    path: '/solicitudes',
+    name: 'Requests',
+    component: Requests
   }
 ]
 

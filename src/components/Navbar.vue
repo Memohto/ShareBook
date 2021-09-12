@@ -12,10 +12,15 @@
       <b-collapse id="nav-collapse" is-nav>
 
         <b-navbar-nav style="margin-left:auto" v-if="showNavbar">
+          
           <b-nav-item right> 
             <router-link class="link" to="/"> Catálogo </router-link> 
           </b-nav-item>
-          <b-nav-item href="#" right> Solicitudes </b-nav-item>
+
+          <b-nav-item href="#" right> 
+            <router-link class="link" to="/solicitudes"> Solicitudes </router-link> 
+          </b-nav-item>
+
           <b-nav-item-dropdown :text="email" right>
             <b-dropdown-item @click="$router.push('/perfil')"> Mi Perfil </b-dropdown-item>
             <b-dropdown-item @click="signOut"> Cerrar sesión </b-dropdown-item>

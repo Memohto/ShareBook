@@ -61,7 +61,7 @@
         </b-tab>
 
         <b-tab title="Mis intercambios">
-          Mis intercambios
+          <MyExchanges/>
         </b-tab>
       </b-tabs>
     </b-row>
@@ -136,6 +136,7 @@
 
 <script>
 import MyBooks from '@/views/MyBooks.vue';
+import MyExchanges from '@/views/MyExchanges.vue';
 import firebase from 'firebase/app'
 import "firebase/auth";
 import "firebase/firestore";
@@ -144,7 +145,8 @@ import "firebase/storage";
 export default {
   name: "MiPerfil",
   components: {
-    MyBooks
+    MyBooks,
+    MyExchanges
   },
   data() {
     return {
