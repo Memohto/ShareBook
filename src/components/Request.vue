@@ -13,13 +13,9 @@
         <div class = "col-3">
             <p class = "resaltado">Publicado por:</p>
             <p>@leector25</p>
-            <b-button 
-              class="my-3" 
-              type="submit" 
-              variant="success"
-              >
-              Solicitar
-            </b-button>
+            <p class = "resaltado">Estatus de solicitud:</p>
+            <p>Esperando</p>
+            
         </div>
         <div class = "col-3">
             <img id="chat" src="../assets/chat.png" alt="chat icon"/>
