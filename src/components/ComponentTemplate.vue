@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'Login',
+  name: 'Template',
   data() {
     return {
       
@@ -16,7 +16,7 @@ export default {
     
   },
   mounted() {
-    this.username = "Memo";
+
   }
 }
 </script>

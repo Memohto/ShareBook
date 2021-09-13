@@ -143,7 +143,7 @@ import "firebase/firestore";
 import "firebase/storage";
 
 export default {
-  name: "MiPerfil",
+  name: "Profile",
   components: {
     MyBooks,
     MyExchanges

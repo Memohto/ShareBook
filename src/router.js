@@ -3,7 +3,8 @@ import Router from 'vue-router';
 import firebase from 'firebase/app';
 import 'firebase/auth'
 
-import Catalog from '@/views/Catalog.vue';
+import Home from '@/views/Home.vue';
+// import Catalog from '@/views/Catalog.vue';
 import Login from '@/views/Login.vue';
 import UserRegistration from '@/views/UserRegistration.vue';
 import Profile from '@/views/Profile.vue';
@@ -15,8 +16,8 @@ Vue.use(Router);
 const routes = [
   {
     path: '/',
-    name: 'Catalog',
-    component: Catalog
+    name: 'Home',
+    component: Home
   },
   {
     path: '/login',
