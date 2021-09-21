@@ -14,8 +14,8 @@
             <li class="list-group-item"> <b>Subido:</b> {{ formatDate(uploaded) }} </li>
           </ul>
           <div class="d-flex justify-content-end mt-4">
-            <b-button v-if="isMine" variant="danger"><i class="far fa-trash-alt"></i></b-button>
-            <b-button v-else variant="success">Solicitar libro</b-button>
+            <!-- <b-button v-if="isMine" variant="danger"><i class="far fa-trash-alt"></i></b-button> -->
+            <b-button v-if="!isMine" variant="success" @click="createRequest">Solicitar libro</b-button>
           </div>
         </b-card-body>
       </b-col>
@@ -26,9 +26,14 @@
 <script>
 import moment from "moment";
 
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+
 export default {
   name: 'Book',
   props: {
+    id: String,
     image: String,
     title: String,
     author: String,
@@ -42,6 +47,23 @@ export default {
   methods: {
     formatDate(unix) {
       return moment(unix).locale('es').format('l');
+    },
+    async createRequest() {
+      const doc = {
+        requestor: firebase.auth().currentUser.email,
+        owner: this.owner,
+        book: this.id,
+        bookImage: this.image,
+        bookCredits: this.credits,
+        status: "Esperando",
+        received: false,
+        delivered: false
+      }
+
+      await firebase.firestore().collection('requests').doc().set(doc)
+        .catch(err => {
+          console.error(err);
+        });
     }
   }
 }

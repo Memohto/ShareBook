@@ -3,6 +3,7 @@
     <b-row v-if="bookResults.length">
       <b-col md="6" class="p-2" v-for="(b, i) in bookResults" :key="i">
         <Book 
+          :id="b.id"
           :image="b.photo" 
           :title="b.title" 
           :author="b.author" 
@@ -85,7 +86,13 @@ export default {
         await bookRef.where('title', '==', this.value).where('owner', '!=', userEmail)
           .get()
           .then((querySnapshot) => {
-            this.byName = this.filterByOthers(querySnapshot.docs.map(d => d.data()));
+            this.byName = this.filterByOthers(querySnapshot.docs.map(d => {
+                return {
+                  id: d.id,
+                  ...d.data()
+                }
+              })
+            )
           })
           .catch((err) => {
               console.error(err.message);
@@ -93,7 +100,13 @@ export default {
         await bookRef.where('author', '==', this.value).where('owner', '!=', userEmail)
           .get()
           .then((querySnapshot) => {
-            this.byAuthor = this.filterByOthers(querySnapshot.docs.map(d => d.data()));
+            this.byAuthor = this.filterByOthers(querySnapshot.docs.map(d => {
+                return {
+                  id: d.id,
+                  ...d.data()
+                }
+              })
+            );
           })
           .catch((err) => {
               console.error(err.message);
@@ -111,7 +124,12 @@ export default {
 
         await query.where('owner', '!=', userEmail).get()
           .then((querySnapshot) => {
-            this.byOthers = querySnapshot.docs.map(d => d.data());
+            this.byOthers = querySnapshot.docs.map(d => {
+              return {
+                id: d.id,
+                ...d.data()
+              }
+            });
           })
       }
     } catch(err) {

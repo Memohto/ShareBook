@@ -3,6 +3,7 @@
     <b-row>
       <b-col md="6" class="p-2" v-for="(b, i) in books" :key="i">
         <Book 
+          :id="b.id"
           :image="b.photo" 
           :title="b.title" 
           :author="b.author" 
@@ -44,7 +45,12 @@ export default {
       .where('genre', '==', this.genre)
       .where('owner', '!=', userEmail)
       .limit(2).get();
-    this.books = bookInfo.docs.map(d => d.data());
+    this.books = bookInfo.docs.map(d => {
+      return {
+        id: d.id,
+        ...d.data()
+      } 
+    });
   }
 }
 </script>

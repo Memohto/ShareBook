@@ -1,83 +1,189 @@
 <template>
-  <div class="container">
-    <div class="row">
-        <p></p>
-        <div class="col-2">
-            <img id="credit-image" src="../assets/coin.png" alt="credit coin" />
-            <p id="creditAmount">175</p>
-        </div>
-        <div class = "col-4">
-            <img id="arrow" src="../assets/right_arrow.png" alt="right arrow" />
-            <img class="book" src="../assets/libro3.jpeg" alt="right arrow" />
-        </div>
-        <div class = "col-3">
-            <p class = "resaltado">Publicado por:</p>
-            <p>@leector25</p>
-            <p class = "resaltado">Estatus de solicitud:</p>
-            <p>Esperando</p>
-            
-        </div>
-        <div class = "col-3">
-            <img id="chat" src="../assets/chat.png" alt="chat icon"/>
-            <p>Chat</p>
-            <b-button
-                id="recibi"
-                class="my-3" 
-                type="submit"
-                >
-                Recibí
-            </b-button>
-        </div>
-        <p></p>
-        <p></p>
-        <hr>
-    </div>
-  </div>
+  <b-row id="container">
+    <!-- Request component -->
+    <b-col v-if="!isDeliver" class="centeredColumn" md="3">
+      <img class="rounded-circle" width="150px" src="../assets/coin.png" alt="Coin image"/>
+      <span id="creditAmount">{{bookCredits}}</span>
+    </b-col>
+
+    <!-- Deliver component -->
+    <b-col v-else class="centeredColumn" md="3">
+      <img height="100%" width="70%" :src="bookImage" alt="Book image" />
+    </b-col>
+
+    <b-col class="centeredColumn" md="1">
+      <img width="100px" src="../assets/right_arrow.png" alt="Arrow image" />
+    </b-col>
+
+    <!-- Request component -->
+    <b-col v-if="!isDeliver" class="centeredColumn" md="3">
+      <img height="100%" width="70%" :src="bookImage" alt="Book image" />
+    </b-col>
+
+    <!-- Deliver component -->
+    <b-col v-else class="centeredColumn" md="3">
+      <img class="rounded-circle" width="150px" src="../assets/coin.png" alt="Coin image"/>
+      <span id="creditAmount">{{bookCredits}}</span>
+    </b-col>
+
+    <b-col class="mt-3">
+      <b-row class="d-flex align-items-center">
+        <b-col md="6">
+          <label for="owner"><b>{{isDeliver ? 'Solicitado por' : 'Publicado por'}}: </b></label> <br>
+          <span id="owner">{{isDeliver ? requestor : owner}}</span> <br>
+        </b-col>
+        <b-col class="d-flex justify-content-end" md=6>
+          <b-button class="mx-2" :disabled="isDisabled">
+            <i class="far fa-comment-alt"></i>
+          </b-button>
+          <b-button class="mx-2">
+            <i class="fas fa-star-half-alt"></i>
+          </b-button>
+        </b-col>
+      </b-row>
+
+      <br>
+
+      <b-row>
+        <label for="status"><b>Estatus de solicitud: </b></label> <br>
+        <span id="status">{{status}}</span> <br>
+      </b-row>
+
+      <br>
+
+      <b-row>
+        <b-col v-if="isDeliver && isDisabled">
+          <b-button style="margin-right:10px" variant="success" @click="acceptRequest">
+            Aceptar
+          </b-button>
+          <b-button variant="danger" @click="rejectRequest">
+            Rechazar
+          </b-button>
+        </b-col>
+
+        <b-col v-if="!isDeliver && status == 'Rechazado'">
+          <b-button variant="danger" @click="deleteRequest">
+            <i class="far fa-trash-alt"></i>
+          </b-button>
+        </b-col>
+        
+        <b-col class="d-flex justify-content-end">
+          <b-button v-if="isDeliver" class="mx-2" variant="success" :disabled="isDisabled || delivered" @click="finishRequest">
+            Entregué
+          </b-button>
+          <b-button v-else class="mx-2" variant="success" :disabled="isDisabled || received" @click="finishRequest">
+            Recibí
+          </b-button>
+        </b-col>
+      </b-row>
+      
+
+    </b-col>
+  </b-row>
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+
 export default {
   name: 'Request',
-  data() {
-    return {
-      
+  props: {
+    id: String,
+    requestor: String,
+    owner: String,
+    book: String,
+    bookImage: String,
+    bookCredits: Number,
+    status: String,
+    isDeliver: Boolean,
+    delivered: Boolean,
+    received: Boolean
+  },
+  computed: {
+    isDisabled() {
+      return this.status == 'Esperando' || this.status == 'Rechazado';
     }
   },
   methods: {
-    
-  }
+    async acceptRequest() {
+      await firebase.firestore().collection('requests').doc(this.id).update({status: "En proceso"})
+        .catch((err) => console.error(err));
+    },
+    async rejectRequest() {
+      await firebase.firestore().collection('requests').doc(this.id).update({status: "Rechazado"})
+        .catch((err) => console.error(err));
+    },
+    async deleteRequest() {
+      await firebase.firestore().collection('requests').doc(this.id).delete()
+        .catch((err) => console.error(err));
+    },
+    async finishRequest() {
+      const docInfo = await firebase.firestore().collection('requests').doc(this.id).get()
+        .catch((err) => console.error(err));
+      const request = docInfo.data();
+      if(this.isDeliver) {
+        if(request.received) {
+          this.createExchange();
+          this.deleteRequest();
+          this.deleteBook();
+          this.chargeCredits();
+        } else {
+          this.deliverRequest();
+        }
+      } else {
+        if(request.delivered) {
+          this.createExchange();
+          this.deleteRequest();
+          this.deleteBook();
+          this.chargeCredits();
+        } else {
+          this.receiveRequest();
+        }
+      }
+    },
+    async deliverRequest() {
+      await firebase.firestore().collection('requests').doc(this.id).update({delivered: true})
+        .catch((err) => console.error(err));
+    },
+    async receiveRequest() {
+      await firebase.firestore().collection('requests').doc(this.id).update({received: true})
+        .catch((err) => console.error(err));
+    },
+    async createExchange() {
+      console.log("Creating exchange");
+    },
+    async deleteBook() {
+      console.log("Deleting book")
+    },
+    async chargeCredits() {
+      console.log("Charging book")
+    }
+  },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  #credit-image {
-    width: 70%;
-    border-radius: 100px;
-    margin-top: 15%;
+  #container {
+    margin: 1rem;
+    height: 300px; 
+    border: 1px solid #c2c2c2;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px grey;
+  }
+
+  .centeredColumn {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
   }
   
   #creditAmount{
-    margin-top: 1%;
-    margin-left: 18%;
     font-size: xx-large;
-  }
-
-  #arrow{
-    width:20%;
-    margin-right: 20%;
-    
-  }
-
-  .book{
-    width:40%;
-  }
-  .resaltado{
-    font-weight: bold;
-  }
-  #chat{
-    width:10%;
-    float:left;
-    margin-right: 10px;
   }
 </style>
