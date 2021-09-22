@@ -49,21 +49,30 @@ export default {
       return moment(unix).locale('es').format('l');
     },
     async createRequest() {
-      const doc = {
-        requestor: firebase.auth().currentUser.email,
-        owner: this.owner,
-        book: this.id,
-        bookImage: this.image,
-        bookCredits: this.credits,
-        status: "Esperando",
-        received: false,
-        delivered: false
-      }
+      try {
+        const userEmail = firebase.auth().currentUser.email;
+        const userInfo = await firebase.firestore().collection('users').doc(userEmail).get();
+        const user = userInfo.data();
 
-      await firebase.firestore().collection('requests').doc().set(doc)
-        .catch(err => {
-          console.error(err);
-        });
+        if(user.credits >= this.credits) {
+          const doc = {
+            requestor: firebase.auth().currentUser.email,
+            owner: this.owner,
+            book: this.id,
+            bookImage: this.image,
+            bookCredits: this.credits,
+            status: "Esperando",
+            received: false,
+            delivered: false
+          }
+          await firebase.firestore().collection('requests').doc().set(doc);
+          this.$router.push('/solicitudes');
+        } else {
+          alert('No hay créditos suficientes');
+        }
+      } catch(err) {
+        console.error(`Error @createRequest: ${err.message}`);
+      }
     }
   }
 }

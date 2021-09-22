@@ -83,6 +83,8 @@
 </template>
 
 <script>
+import moment from 'moment';
+
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
@@ -125,19 +127,13 @@ export default {
       const request = docInfo.data();
       if(this.isDeliver) {
         if(request.received) {
-          this.createExchange();
-          this.deleteRequest();
-          this.deleteBook();
-          this.chargeCredits();
+          await this.processExchange();
         } else {
           this.deliverRequest();
         }
       } else {
         if(request.delivered) {
-          this.createExchange();
-          this.deleteRequest();
-          this.deleteBook();
-          this.chargeCredits();
+          await this.processExchange();
         } else {
           this.receiveRequest();
         }
@@ -151,14 +147,48 @@ export default {
       await firebase.firestore().collection('requests').doc(this.id).update({received: true})
         .catch((err) => console.error(err));
     },
+    async processExchange() {
+      try {
+        await this.createExchange();
+        await this.deleteRequest();
+        await this.deleteBook();
+        await this.chargeCredits();
+      } catch(err) {
+        console.error(`Error @processingExchange: ${err.message}`)
+      }
+      
+    },
     async createExchange() {
-      console.log("Creating exchange");
+      const doc = {
+        requestor: this.requestor,
+        owner: this.owner,
+        book: this.book,
+        bookImage: this.bookImage,
+        bookCredits: this.bookCredits,
+        date: moment().utc().valueOf()
+      }
+      await firebase.firestore().collection('exchanges').doc().set(doc)
+        .catch((err) => console.error(err));
     },
     async deleteBook() {
-      console.log("Deleting book")
+      await firebase.firestore().collection('books').doc(this.book).delete()
+        .catch((err) => console.error(err));
     },
     async chargeCredits() {
-      console.log("Charging book")
+      const requestorInfo = await firebase.firestore().collection('users').doc(this.requestor).get()
+        .catch((err) => console.error(err));
+      const requestor = requestorInfo.data();
+
+      const ownerInfo = await firebase.firestore().collection('users').doc(this.owner).get()
+        .catch((err) => console.error(err));
+      const owner = ownerInfo.data();
+
+      firebase.firestore().collection('users').doc(this.requestor).update({credits: requestor.credits - this.bookCredits})
+        .then(() => {
+          firebase.firestore().collection('users').doc(this.owner).update({credits: owner.credits + this.bookCredits})
+            .catch((err) => console.error(err));
+        })
+        .catch((err) => console.error(err));
     }
   },
 }

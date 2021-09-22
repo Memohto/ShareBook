@@ -109,9 +109,8 @@ export default {
               this.removeRequest(change.doc.id, change.doc.data());
             }
           }
-        }
-      );
-    });
+        });
+      });
     },
     unsubscribeRequests() {
       this.unsubscribe();

@@ -23,7 +23,7 @@
             </b-nav-item>
             <b-nav-item class="d-flex align-items-center">
               <img src="@/assets/coin.png" alt="Coin image" width="30px" class="rounded-circle">
-              <span class="mx-1">100</span>
+              <span class="mx-1">{{userCredits}}</span>
             </b-nav-item>
             
           </b-navbar-nav>
@@ -68,6 +68,10 @@
 <script>
 import globals from '@/globals.js';
 
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+
 export default {
   name: 'Home',
   data() {
@@ -75,7 +79,9 @@ export default {
       search: '',
       costFilter: false,
       selectedCondition: 'Ninguno',
-      selectedGenre: 'Ninguno'
+      selectedGenre: 'Ninguno',
+      userEmail: '',
+      userCredits: 0,
     }
   },
   computed: {
@@ -96,10 +102,15 @@ export default {
       this.$emit('search', searchVal, this.costFilter, this.selectedCondition, this.selectedGenre)
     }
   },
-  mounted() {
-
+  async mounted() {
+    this.userEmail = firebase.auth().currentUser.email;
+    const userEmail = firebase.auth().currentUser.email;
+    const userInfo = await firebase.firestore().collection('users').doc(userEmail).get()
+      .catch(err => console.error(err));
+    const user = userInfo.data();
+    this.userCredits = user.credits;
   }
-}
+} 
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
