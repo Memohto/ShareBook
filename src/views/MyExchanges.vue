@@ -3,13 +3,15 @@
     <b-row>
       <b-col v-for="(e, i) in exchanges" :key="i" md="12">
         <Exchange
+          :id="e.id"
           :book="e.book"
           :bookImage="e.bookImage"
           :bookCredits="e.bookCredits"
           :requestor="e.requestor"
           :owner="e.owner"
           :date="e.date"
-          :grade="-1"
+          :gradeIn="e.gradeIn || -1"
+          :gradeOut="e.gradeOut || -1"
           :isIn="userEmail == e.owner"
         />
       </b-col>

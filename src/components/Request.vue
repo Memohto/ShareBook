@@ -36,9 +36,6 @@
           <b-button class="mx-2" :disabled="isDisabled">
             <i class="far fa-comment-alt"></i>
           </b-button>
-          <b-button class="mx-2">
-            <i class="fas fa-star-half-alt"></i>
-          </b-button>
         </b-col>
       </b-row>
 

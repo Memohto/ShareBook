@@ -37,12 +37,8 @@
         <span id="other">{{formatDate(date)}}</span>
       </b-row>
       <br>
-      <b-row>
-        <b-col class="d-flex justify-content-end">
-          <b-button variant="success">
-            Calificar trueque
-          </b-button>
-        </b-col>
+      <b-row class="mx-5 mt-3">
+        <b-form-rating v-model="newGrade" :disabled="newGrade > 0" @change="rate"></b-form-rating>
       </b-row>
     </b-col>
   </b-row>
@@ -61,26 +57,49 @@ export default {
     return {
       userEmail: '',
       otherUser: '',
+      newGrade: -1
     }
   },
   props: {
+    id: String,
     book: String,
     bookImage: String,
     bookCredits: Number,
     requestor: String,
     owner: String,
     date: Number,
-    grade: Number,
+    gradeIn: Number,
+    gradeOut: Number,
     isIn: Boolean,
   },
   methods: {
     formatDate(unix) {
       return moment(unix).locale('es').format('l');
     },
+    rate() {
+      const direction = this.isIn ? 'gradeIn' : 'gradeOut';
+      firebase.firestore().collection('exchanges').doc(this.id).update({[direction]: this.newGrade})
+        .then(async () => {
+          const otherInfo = await firebase.firestore().collection('users').doc(this.otherUser).get()
+            .catch(err => console.error(err));
+          const otherData = otherInfo.data();
+          const all = otherData.allGrades || 0;
+          const total = otherData.totalExchanges || 0;
+
+          await firebase.firestore().collection('users').doc(this.otherUser)
+            .update({
+              allGrades: all + this.newGrade, 
+              totalExchanges: total + 1
+            })
+            .catch(err => console.error(err));
+        })
+        .catch(err => console.error(err));
+    },
   },
   mounted() {
     this.userEmail = firebase.auth().currentUser.email;
     this.otherUser = this.isIn ? this.requestor : this.owner;
+    this.newGrade = this.isIn ? this.gradeIn : this.gradeOut;
   }
 }
 </script>

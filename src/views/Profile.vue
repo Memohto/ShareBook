@@ -30,6 +30,7 @@
               <hr>
               <p><b>Usuario: </b>{{userInfo.username}}</p>
               <p><b>Teléfono: </b>{{userInfo.phone}}</p>
+              <p><b>Calificación </b>{{getGrade()}}</p>
           </b-col>
         </b-row>
       </b-col>
@@ -185,6 +186,13 @@ export default {
     }
   },
   methods: {
+    getGrade() {
+      if(this.userInfo.allGrades && this.userInfo.totalExchanges) {
+        return this.userInfo.allGrades / this.userInfo.totalExchanges;
+      } else {
+        return 'N/a'
+      }
+    },
     countDownChanged(dismissCountDown) {
       this.dismissCountDown = dismissCountDown
     },

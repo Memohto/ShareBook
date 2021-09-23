@@ -7,7 +7,8 @@
       <b-col md="7">
         <b-card-body :title="title" :sub-title="author">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item" v-if="!isMine"> <b>Propietario:</b> {{ owner }} </li>
+            <li class="list-group-item" v-if="!isMine"><b>Propietario:</b> {{ owner }} </li>
+            <li class="list-group-item" v-if="!isMine"><b>Calificación del propietario:</b> {{ gradeMsg }} </li>
             <li class="list-group-item"> <b>Género:</b> {{ genre }} </li>
             <li class="list-group-item"> <b>Condición:</b> {{ condition }} </li>
             <li class="list-group-item"> <b>Creditos:</b> {{ credits }} </li>
@@ -31,7 +32,12 @@ import "firebase/auth";
 import "firebase/firestore";
 
 export default {
-  name: 'Book',
+  name: 'Book', 
+  data: () => {
+    return {
+      gradeMsg: '',
+    }
+  },
   props: {
     id: String,
     image: String,
@@ -47,6 +53,18 @@ export default {
   methods: {
     formatDate(unix) {
       return moment(unix).locale('es').format('l');
+    },
+    async showGrade() {
+      if(!this.owner) return;
+      let msg = "";
+      const ownerInfo = await firebase.firestore().collection('users').doc(this.owner).get();
+      const owner = ownerInfo.data();
+      if(owner.allGrades && owner.totalExchanges) {
+        msg = owner.allGrades/owner.totalExchanges;
+      } else {
+        msg = 'N/a'
+      }
+      this.gradeMsg = msg;
     },
     async createRequest() {
       try {
@@ -73,7 +91,10 @@ export default {
       } catch(err) {
         console.error(`Error @createRequest: ${err.message}`);
       }
-    }
+    },
+  },
+  async mounted() {
+    await this.showGrade();
   }
 }
 </script>
