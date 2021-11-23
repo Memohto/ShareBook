@@ -141,10 +141,28 @@ export default {
       this.errors = {};
       let valid = true;
 
+      // Title input validation
+      if(!this.book.title.trim()) {
+        this.errors['Título'] = 'Campo vacío.';
+        valid = false;
+      }
+
+      // Author input validation
+      if(!this.book.author.trim()) {
+        this.errors['Autor'] = 'Campo vacío.';
+        valid = false;
+      }
+
       // Credits validation
       this.book.credits = +this.book.credits;
       if(!this.book.credits || this.book.credits < 0) {
         this.errors['Creditos'] = 'Los créditos tienen que ser mayor a cero.';
+        valid = false;
+      }
+
+      // Image validation
+      if(!['png', 'jpg', 'jpeg'].some(f => this.photoFile.type.includes(f))) {
+        this.errors['Imagen'] = 'Formato de imagen inválido.';
         valid = false;
       }
 

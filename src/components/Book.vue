@@ -72,7 +72,21 @@ export default {
         const userInfo = await firebase.firestore().collection('users').doc(userEmail).get();
         const user = userInfo.data();
 
-        if(user.credits >= this.credits) {
+        var requestCredits = 0;
+        var alreadyRequested = false;
+        const requests = await firebase.firestore().collection('requests').where('requestor', '==', userEmail).get();
+        requests.docs.map(d => {
+          let data = d.data();
+          if(!alreadyRequested) alreadyRequested = this.id == data.book;
+          requestCredits += data.bookCredits;
+        });
+
+        if(alreadyRequested) {
+          alert('Ya solicitó este libro');
+          return;
+        }
+
+        if(user.credits - requestCredits >= this.credits) {
           const doc = {
             requestor: firebase.auth().currentUser.email,
             owner: this.owner,

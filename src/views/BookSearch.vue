@@ -37,7 +37,6 @@ export default {
   data() {
     return {
       byName: [],
-      byAuthor: [],
       byOthers: []
     }
   },
@@ -51,7 +50,6 @@ export default {
     bookResults() {
       let res = [];
       res = res.concat(this.byName);
-      res = res.concat(this.byAuthor);
       res = res.concat(this.byOthers);
       if(this.costFilter) res.sort((a, b) => a.credits - b.credits);
         
@@ -81,38 +79,23 @@ export default {
     try {
       const userEmail = firebase.auth().currentUser.email;
       let bookRef = firebase.firestore().collection('books');
-      // let byName, byAuthor;
       if(this.value) {
-        await bookRef.where('title', '==', this.value).where('owner', '!=', userEmail)
-          .get()
-          .then((querySnapshot) => {
-            this.byName = this.filterByOthers(querySnapshot.docs.map(d => {
-                return {
-                  id: d.id,
-                  ...d.data()
-                }
-              })
-            )
-          })
-          .catch((err) => {
-              console.error(err.message);
-          });
-        await bookRef.where('author', '==', this.value).where('owner', '!=', userEmail)
-          .get()
-          .then((querySnapshot) => {
-            this.byAuthor = this.filterByOthers(querySnapshot.docs.map(d => {
-                return {
-                  id: d.id,
-                  ...d.data()
-                }
-              })
-            );
-          })
-          .catch((err) => {
-              console.error(err.message);
-          });
+        let allBooks = await bookRef.get();
+        this.byName = allBooks.docs.map(b => {
+          let data = b.data();
+          if(data.title.toLowerCase().includes(this.value.toLowerCase()) ||
+          data.author.toLowerCase().includes(this.value.toLowerCase())) {
+            return {
+              id: b.id,
+              ...data
+            }
+          }
+        }).filter(Boolean);
       } else {
-        if(this.selectedCondition == 'Ninguno' && this.selectedGenre == 'Ninguno') return;
+        if(this.selectedCondition == 'Ninguno' && this.selectedGenre == 'Ninguno') {
+          this.stopSearch();
+          return;
+        }
 
         let query = bookRef;
         if(this.selectedCondition != 'Ninguno') {

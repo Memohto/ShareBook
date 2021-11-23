@@ -47,7 +47,10 @@
         </b-button>
       </b-form>
 
-      <p class="my-4">¿No tienes una cuenta? <router-link to='/registro'>Registrarse</router-link></p>
+      <p class="mt-4">¿No tienes una cuenta? <router-link to='/registro'>Registrarse</router-link></p>
+      <p>¿Olvidaste tu contraseña? 
+        <b style="cursor: pointer;" v-b-tooltip.hover="'Contáctanos a soporte@sharebook.com para pedir tu cambio'">Cambiar</b>
+      </p>
 
     </b-col>
   </b-container>

@@ -57,7 +57,7 @@
               v-model="password"
               id="password-input" 
               type="password"
-              placeholder="Ingresa tu contraseña"
+              placeholder="Contraseña de al menos 6 caracteres"
             ></b-form-input>
           </b-form-group>
 
@@ -116,7 +116,24 @@ export default {
       this.errors = {};
       let valid = true;
 
-      // E-mail validation
+      // Name validation
+      if(!this.fullName.trim()) {
+        this.errors['Nombre'] = 'Campo vacío.';
+        valid = false;
+      }
+
+      // Username validation
+      if(!this.username.trim()) {
+        this.errors['Usuario'] = 'Campo vacío.';
+        valid = false;
+      }
+
+      // Name validation
+      if(!this.fullName) {
+        this.errors['Nombre'] = 'Campo vacío.';
+        valid = false;
+      }
+
       const mailRegex = new RegExp(/^\S+@\S+\.\S+$/);
       if(!mailRegex.test(this.email)) {
         this.errors['E-mail'] = 'El formato del correo ingresado es incorrecto.';
@@ -134,12 +151,15 @@ export default {
       if(this.password !== this.confirmPassword) {
         this.errors['Contraseña'] = 'Las contraseñas no coinciden.';
         valid = false;
+      } else if(this.password.includes(' ') || this.confirmPassword.includes(' ')) {
+        this.errors['Contraseña'] = 'La contraseña no puede llevar espacio.';
+        valid = false;
       }
 
       return valid;
     },
     onSubmit() {
-      const valid = true;
+      const valid = this.validate();
 
       if(valid) {
         // Create user
